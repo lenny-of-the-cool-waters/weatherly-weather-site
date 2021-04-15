@@ -1,42 +1,69 @@
-(function($, document, window){
-	
-	$(document).ready(function(){
+/* TODO: Convert to vanilla js */
+/* TODO: Fetch data from openweather api */
+/* TODO: Inject weather info into appropriate elements */
 
-		// Cloning main navigation for mobile menu
-		$(".mobile-navigation").append($(".main-navigation .menu").clone());
+/* Variables */
+// DOM Elements
+let mobileNavigation = document.querySelector(".mobile-navigation");
+let menu = document.querySelector(".main-navigation .menu");
+let menuToggle = document.querySelector(".menu-toggle");
+let findLocation = document.querySelector(".find-location");
+let locationInput =  document.querySelector(".location-input");
+let map = document.querySelector(".map");
+// Global Variables
+let APIKey = "1464344ec7e8bcead0de0c3ecd76093b";
+let city = "Nairobi";
 
-		// Mobile menu toggle 
-		$(".menu-toggle").click(function(){
-			$(".mobile-navigation").slideToggle();
-		});
+/* Functions */
+// Function to clone menu functionality into mobile displays
+function createMenus() {
+	mobileNavigation.appendChild(menu.cloneNode(true));
+	menuToggle.addEventListener("click", () => {
+		$(".mobile-navigation").slideToggle();
+	})
+}
 
-		var map = $(".map");
-		var latitude = map.data("latitude");
-		var longitude = map.data("longitude");
-		if( map.length ){
-			
-			map.gmap3({
-				map:{
-					options:{
-						center: [latitude,longitude],
-						zoom: 15,
-						scrollwheel: false
-					}
-				},
-				marker:{
-					latLng: [latitude,longitude],
-				}
-			});
-			
-		}
-	});
+// Function to set city from input form
+function setCity(e) {
+	e.preventDefault();
+	city = locationInput.value;
+	document.querySelector(".location").innerText = city;
+	getWeather();
+}
 
-	$(window).load(function(){
+// Function to city's longitude and latitude
+async function getGeoData() {
+	/* fetch(`https://api.openweathermap.org/data/2.5/onecall?q=${city}&appid=1464344ec7e8bcead0de0c3ecd76093b`) */
+	/* fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=1464344ec7e8bcead0de0c3ecd76093b`) */
+	try {
+		const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${APIKey}`);
+		const data = await response.json();
+		console.log(data.coord)
+		return (data.coord);
+	} catch(err) {
+		alert(err);
+	}
+}
 
-	});
+// Function to fetch weather data
+async function getWeather() {
+	try {
+		let pos = await getGeoData();
+		const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${pos.lat}&lon=${pos.lon}&exclude=hourly&appid=${APIKey}`);
+		const data = response.json();
+		console.log(data);
+	} catch(err) {
+		console.log(err);
+	}
+}
 
-})(jQuery, document, window);
+// Calls all functions to be rendered when site loaded
+function startUp() {
+	createMenus();
+	getWeather();
+	document.querySelector(".location").innerText = city;
+}
 
-/* Convert to vanilla js */
-/* Fetch data from openweather api */
-/* Inject weather info into appropriate elements */
+/* Events */
+document.addEventListener("DOMContentLoaded", startUp);
+findLocation.addEventListener("submit", setCity);
