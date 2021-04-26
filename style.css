@@ -1269,7 +1269,8 @@ form textarea {
         font-weight: 400; }
       .forecast-container .forecast.today .degree .num, .forecast-container .forecast.today .degree .forecast-icon {
         display: inline-block;
-        vertical-align: middle; }
+        vertical-align: middle;
+        height: auto; }
       .forecast-container .forecast.today .degree .num {
         font-size: 90px;
         font-size: 6.4285714286rem;
